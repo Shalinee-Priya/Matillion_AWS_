@@ -163,6 +163,6 @@ design:
       tempMetlId: 3
     SQL Script:
       position:
-        x: -30
-        "y": 80
+        x: -50
+        "y": 60
       tempMetlId: 4
