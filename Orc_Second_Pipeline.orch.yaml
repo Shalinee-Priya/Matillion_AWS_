@@ -1,0 +1,168 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+        - "Create Table"
+        - "SQL Script"
+      parameters:
+        componentName: "Start"
+    Create Table:
+      type: "create-table-v2"
+      transitions:
+        success:
+        - "S3 Load"
+      parameters:
+        componentName: "Create Table"
+        createMethod: "Create If Not Exists"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "Products"
+        snowflakeTableType: "Permanent"
+        columns:
+        - - "product_id"
+          - "NUMBER"
+          - "5"
+          - ""
+          - ""
+          - "Yes"
+          - "Yes"
+          - ""
+          - ""
+        - - "product_name"
+          - "VARCHAR"
+          - "60"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "brand_id"
+          - "NUMBER"
+          - "5"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "category_id"
+          - "NUMBER"
+          - "5"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "model_year"
+          - "DATE"
+          - "10"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "list_price"
+          - "FLOAT"
+          - "10"
+          - "2"
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        defaultDdlCollation:
+        primaryKeys:
+        clusteringKeys:
+        dataRetentionTimeInDays:
+        comment:
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    S3 Load:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://matillionawsshalinee/products/products.csv"
+        pattern: ".*"
+        encryption: "S3 Encryption"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "Products"
+        loadColumns:
+        - "product_id"
+        - "product_name"
+        - "brand_id"
+        - "category_id"
+        - "model_year"
+        - "list_price"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "AUTO"
+        recordDelimiter:
+        fieldDelimiter: ","
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat:
+        timeFormat:
+        timestampFormat:
+        escape:
+        escapeUnenclosedField:
+        trimSpace: "False"
+        fieldOptionallyEnclosed:
+        nullIf:
+        errorOnColumnCountMismatch: "True"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType:
+        onError: "Abort Statement"
+        sizeLimitB:
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    SQL Script:
+      type: "sql-executor"
+      parameters:
+        componentName: "SQL Script"
+        scriptLocation: "Component"
+        declareSqlVariables: "Include selected"
+        variablesToInclude:
+        sqlScript: "DELETE FROM DEMO_DATABASE.DEMO_SCHEMA.\"Products\" WHERE \"brand_id\"\
+          \ = '9'"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+design:
+  components:
+    Start:
+      position:
+        x: -180
+        "y": -80
+      tempMetlId: 1
+    Create Table:
+      position:
+        x: -50
+        "y": -80
+      tempMetlId: 2
+    S3 Load:
+      position:
+        x: 110
+        "y": -80
+      tempMetlId: 3
+    SQL Script:
+      position:
+        x: -50
+        "y": 20
+      tempMetlId: 4
