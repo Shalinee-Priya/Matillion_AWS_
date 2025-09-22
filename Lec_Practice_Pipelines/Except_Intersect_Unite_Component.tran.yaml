@@ -1,0 +1,139 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    BOOKS1:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS1"
+        database: "[Environment Default]"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS1"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+    BOOKS2:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS2"
+        database: "[Environment Default]"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS2"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset: ""
+    Except:
+      type: "except"
+      sources:
+      - "BOOKS1"
+      - "BOOKS2"
+      parameters:
+        componentName: "Except"
+        castTypes: "Yes"
+        primaryTable: "BOOKS1"
+    Intersect:
+      type: "intersect"
+      sources:
+      - "BOOKS1"
+      - "BOOKS2"
+      parameters:
+        componentName: "Intersect"
+        castTypes: "Yes"
+    Unite:
+      type: "unite"
+      sources:
+      - "BOOKS1"
+      - "BOOKS2"
+      parameters:
+        componentName: "Unite"
+        method: "Overlapping Columns"
+        castTypes: "Yes"
+        addSourceComponentColumn: "No"
+        removeDuplicates: "Yes"
+    BOOKS1_EXCEPT_BOOKS2:
+      type: "rewrite-table"
+      sources:
+      - "Except"
+      parameters:
+        componentName: "BOOKS1_EXCEPT_BOOKS2"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS1_EXCEPT_BOOKS2"
+        orderBy:
+        - - "ID"
+          - "ASCENDING"
+    BOOKS1_UNION_BOOKS2:
+      type: "rewrite-table"
+      sources:
+      - "Unite"
+      parameters:
+        componentName: "BOOKS1_UNION_BOOKS2"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS1_UNION_BOOKS2"
+        orderBy:
+        - - "ID"
+          - "ASCENDING"
+    BOOKS1_INTERSECT_BOOKS2:
+      type: "rewrite-table"
+      sources:
+      - "Intersect"
+      parameters:
+        componentName: "BOOKS1_INTERSECT_BOOKS2"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "DEMO_SCHEMA"
+        targetTable: "BOOKS1_INTERSECT_BOOKS2"
+        orderBy:
+        - - "ID"
+          - "ASCENDING"
+design:
+  components:
+    BOOKS1:
+      position:
+        x: 208
+        "y": 80
+      tempMetlId: 9410
+    BOOKS2:
+      position:
+        x: 208
+        "y": 208
+      tempMetlId: 9414
+    Except:
+      position:
+        x: 560
+        "y": 0
+      tempMetlId: 9467
+    Intersect:
+      position:
+        x: 560
+        "y": 128
+      tempMetlId: 9469
+    Unite:
+      position:
+        x: 560
+        "y": 256
+      tempMetlId: 9471
+    BOOKS1_EXCEPT_BOOKS2:
+      position:
+        x: 720
+        "y": 0
+      tempMetlId: 9565
+    BOOKS1_UNION_BOOKS2:
+      position:
+        x: 720
+        "y": 260
+      tempMetlId: 9568
+    BOOKS1_INTERSECT_BOOKS2:
+      position:
+        x: 720
+        "y": 128
+      tempMetlId: 9570
