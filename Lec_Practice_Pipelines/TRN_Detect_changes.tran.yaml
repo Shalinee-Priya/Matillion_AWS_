@@ -1,0 +1,134 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    BOOKS1:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS1"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "BOOKS1"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset:
+    BOOKS2:
+      type: "table-input"
+      parameters:
+        componentName: "BOOKS2"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "BOOKS2"
+        columnNames:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        timeOffset:
+    Detect Changes:
+      type: "detect-changes"
+      sources:
+      - "BOOKS1"
+      - "BOOKS2"
+      parameters:
+        componentName: "Detect Changes"
+        masterTable: "BOOKS1"
+        matchKeys:
+        - "ID"
+        compareColumns:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+        outputColumnMapping:
+        - - "master_ID"
+          - "master_ID"
+        - - "compare_ID"
+          - "compare_ID"
+        - - "master_NAME"
+          - "master_NAME"
+        - - "compare_NAME"
+          - "compare_NAME"
+        - - "master_CATEGORY"
+          - "master_CATEGORY"
+        - - "compare_CATEGORY"
+          - "compare_CATEGORY"
+        - - "master_PRICE"
+          - "master_PRICE"
+        - - "compare_PRICE"
+          - "compare_PRICE"
+        indicatorColumn: "Indicator"
+    Filter:
+      type: "filter"
+      sources:
+      - "Detect Changes"
+      parameters:
+        componentName: "Filter"
+        filterConditions:
+        - - "Indicator"
+          - "Is"
+          - "Equal to"
+          - "I"
+        combineCondition: "And"
+    Rewrite Table:
+      type: "rewrite-table"
+      sources:
+      - "Filter"
+      parameters:
+        componentName: "Rewrite Table"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "Identical_Records_Detect_Changes"
+        orderBy:
+        - - "ID"
+          - "ASCENDING"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    Distinct:
+      type: "distinct"
+      sources:
+      - "BOOKS2"
+      parameters:
+        componentName: "Distinct"
+        columns:
+        - "ID"
+        - "NAME"
+        - "CATEGORY"
+        - "PRICE"
+design:
+  components:
+    BOOKS1:
+      position:
+        x: -170
+        "y": -50
+      tempMetlId: 1
+    BOOKS2:
+      position:
+        x: -170
+        "y": 60
+      tempMetlId: 2
+    Detect Changes:
+      position:
+        x: -10
+        "y": 0
+      tempMetlId: 3
+    Filter:
+      position:
+        x: 150
+        "y": 0
+      tempMetlId: 4
+    Rewrite Table:
+      position:
+        x: 310
+        "y": 0
+      tempMetlId: 5
+    Distinct:
+      position:
+        x: -10
+        "y": 120
+      tempMetlId: 6
